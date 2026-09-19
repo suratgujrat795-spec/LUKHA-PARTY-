@@ -1,0 +1,77 @@
+<!doctype html><html lang="hi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>LUKHA PARTY</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#090712;color:#fff;font-family:Arial}.app{max-width:430px;margin:auto;min-height:100vh;background:linear-gradient(#180d30,#090712)}
+header{padding:20px 16px;display:flex;justify-content:space-between}.logo{font-size:23px;font-weight:bold;color:#d99cff}.coin{background:#28163f;padding:8px 12px;border-radius:20px;color:#ffd76b}.page{padding:8px 16px 90px}
+.search,input,textarea{width:100%;background:#120c20;border:1px solid #493268;color:white;border-radius:13px;padding:12px;margin:5px 0}.banner{margin:15px 0;padding:18px;border-radius:18px;background:linear-gradient(135deg,#762cff,#d21b9b)}.banner b{font-size:21px}.section{display:flex;justify-content:space-between;margin:18px 0 8px}.muted{color:#aaa;font-size:13px}
+.card,.tile{background:#171025;border:1px solid #302046;border-radius:17px;padding:14px;margin:10px 0}.room{display:flex;align-items:center;gap:11px}.avatar{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#ff5db1,#6f4bff);display:grid;place-items:center;font-weight:bold}.roominfo{flex:1}.roominfo b{display:block}.roominfo small{color:#aaa}.join,.primary{border:0;background:#9b3cff;color:white;padding:9px 13px;border-radius:12px}.primary{width:100%;padding:13px;margin-top:8px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.tile{text-align:center;padding:20px}.icon{font-size:28px}.hidden{display:none}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(430px,100%);display:grid;grid-template-columns:repeat(5,1fr);background:#120d1d;border-top:1px solid #302046;padding:7px}.nav button{background:none;border:0;color:#aaa;font-size:11px}.nav .active{color:#d99cff}.nav span{display:block;font-size:20px}.toast{display:none;position:fixed;bottom:75px;left:50%;transform:translateX(-50%);background:#2b1743;padding:10px 15px;border-radius:14px}
+</style></head><body><div class="app"><header><div class="logo">💜 LUKHA PARTY</div><div class="coin">🪙 0</div></header><main class="page">
+<section id="home"><input class="search" placeholder="🔍 Room ya user search karein"><div class="banner"><b>🎉 Welcome to LUKHA PARTY</b><p>Live rooms • Chat • Friends • Fun</p></div><div class="section"><b>🔥 Live Rooms</b><span class="muted">See all</span></div><div id="rooms"></div></section>
+<section id="room" class="hidden"><h2>🎤 Voice Room</h2>
+<div class="card" style="text-align:center">
+<div class="avatar" style="margin:auto;width:70px;height:70px">H</div>
+<h2 id="activeRoom">Good Vibes Only ❤️</h2>
+<p class="muted">Host: <span id="activeHost">Happy</span></p>
+<div class="grid"><div class="tile">🎤<br><b>Host</b></div><div class="tile">👥<br><b id="activeListeners">128</b> listeners</div></div>
+<button class="primary" id="micBtn" onclick="toggleMic()">🎙️ Mic OFF</button>
+<button class="primary" onclick="toast('Gift feature ready for next step')">🎁 Gift</button>
+<button class="primary" onclick="show('home',document.querySelector('.nav button'))">🚪 Leave Room</button>
+</div></section>
+<section id="create" class="hidden"><h2>➕ Create Room</h2><div class="card"><input id="rn" placeholder="Room ka naam"><input id="hn" placeholder="Host ka naam"><input id="rd" placeholder="Room description"><button class="primary" onclick="createRoom()">Create Room</button></div></section>
+<section id="messages" class="hidden"><h2>💬 Messages</h2><div class="card">📩 Abhi koi message nahi hai.</div></section>
+<section id="profile" class="hidden"><h2>👤 My Profile</h2><div class="card" style="text-align:center"><div class="avatar" style="margin:auto;width:72px;height:72px">A</div><h2 id="pn">ROLEX</h2><p class="muted">ID: 10001</p><div class="grid"><div class="tile"><b>0</b><br><span class="muted">Followers</span></div><div class="tile"><b>0</b><br><span class="muted">Following</span></div></div><input id="nn" placeholder="Name change karein"><button class="primary" onclick="saveName()">Save Profile</button></div></section>
+<section id="more" class="hidden"><h2>⚙️ More</h2><div class="grid"><div class="tile" onclick="toast('Wallet opened')"><div class="icon">🪙</div><b>Wallet</b></div><div class="tile" onclick="toast('Gifts opened')"><div class="icon">🎁</div><b>Gifts</b></div><div class="tile" onclick="toast('Settings opened')"><div class="icon">⚙️</div><b>Settings</b></div><div class="tile" onclick="toast('Help opened')"><div class="icon">❓</div><b>Help</b></div></div></section>
+</main><nav class="nav"><button class="active" onclick="show('home',this)"><span>🏠</span>Home</button><button onclick="show('home',this)"><span>🎤</span>Rooms</button><button onclick="show('create',this)"><span>➕</span>Create</button><button onclick="show('messages',this)"><span>💬</span>Messages</button><button onclick="show('profile',this)"><span>👤</span>Profile</button></nav><div id="toast" class="toast"></div></div>
+<script>
+let rooms=[['Good Vibes Only ❤️','Happy','128'],['Desi Chat Room 🇮🇳','Monu','76'],['Night Vibes 🌙','Riya','54']];
+function render(){
+  roomsEl.innerHTML = rooms.map(function(r,i){
+    return '<div class="card room"><div class="avatar">'+r[1][0]+'</div><div class="roominfo"><b>'+r[0]+'</b><small>🎤 '+r[1]+' • 👥 '+r[2]+' listeners</small></div><button class="join" onclick="joinRoom('+i+')">Join</button></div>';
+  }).join('');
+}
+const roomsEl=document.getElementById('rooms');render();
+function show(id,b){document.querySelectorAll('main section').forEach(x=>x.classList.add('hidden'));document.getElementById(id).classList.remove('hidden');document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active')}
+function joinRoom(i){
+let r=rooms[i];document.getElementById('activeRoom').textContent=r[0];
+document.getElementById('activeHost').textContent=r[1];
+document.getElementById('activeListeners').textContent=r[2];
+let b=document.querySelectorAll('.nav button')[1];show('room',b);
+}
+function createRoom(){
+  let n=document.getElementById('rn').value.trim();
+  let h=document.getElementById('hn').value.trim()||'You';
+  let d=document.getElementById('rd').value.trim()||'New LUKHA PARTY room';
+  if(!n){toast('Room name likho');return;}
+  rooms.unshift([n,h,'1',d]);
+  render();
+  document.getElementById('rn').value='';
+  document.getElementById('hn').value='';
+  document.getElementById('rd').value='';
+  toast('Room create ho gaya ✅');
+  show('home',document.querySelector('.nav button'));
+}
+let micStream=null;
+async function toggleMic(){
+  const b=document.getElementById('micBtn');
+  if(micStream){
+    micStream.getTracks().forEach(t=>t.stop());
+    micStream=null;
+    b.textContent='🎙️ Mic OFF';
+    toast('Mic OFF');
+    return;
+  }
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    toast('Is Preview me microphone available nahi hai');
+    return;
+  }
+  try{
+    micStream=await navigator.mediaDevices.getUserMedia({audio:true});
+    b.textContent='🔴 Mic ON';
+    toast('Microphone ON ✅');
+  }catch(e){
+    toast('Microphone permission allow karo');
+  }
+}
+function saveName(){if(nn.value.trim()){pn.textContent=nn.value.trim();toast('Profile save ho gayi ✅')}}
+function toast(t){let x=document.getElementById('toast');x.textContent=t;x.style.display='block';setTimeout(()=>x.style.display='none',1800)}
+</script></body></html>
